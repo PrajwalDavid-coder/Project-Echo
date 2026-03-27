@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Project ECHO — Escape Room</title>
+  <link rel="shortcut icon" href="download.png" type="image/x-icon">
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+
+  <!-- INTRO SCREEN -->
+  <div id="intro-screen" class="screen active">
+    <div class="intro-content">
+      <div class="glitch-wrapper">
+        <h1 class="glitch" data-text="PROJECT ECHO">PROJECT ECHO</h1>
+      </div>
+      <div class="intro-text">
+        <p class="typewriter-text">You wake up in a dimly lit laboratory. The door is sealed. The intercom crackles…</p>
+        <blockquote id="intercom-msg">
+          "Welcome, Subject 7. You have <strong>7 minutes</strong> before the facility enters
+          permanent lockdown. Find the override code and escape — or become part of the experiment."
+        </blockquote>
+      </div>
+      <button id="start-btn" class="btn-primary">INITIALISE ESCAPE</button>
+    </div>
+    <canvas id="particle-canvas"></canvas>
+  </div>
+
+  <!-- GAME SCREEN -->
+  <div id="game-screen" class="screen">
+
+    <!-- HUD bar -->
+    <header class="hud">
+      <div class="hud-left">
+        <span class="hud-label">SUBJECT</span>
+        <span class="hud-value">— 7 —</span>
+      </div>
+      <div class="hud-center">
+        <span class="hud-label">TIME REMAINING</span>
+        <div id="timer" class="timer">12:00</div>
+      </div>
+      <div class="hud-right">
+        <span class="hud-label">HINTS</span>
+        <span id="hint-count" class="hud-value">3</span>
+        <button id="hint-btn" class="btn-hint" title="Use a hint">💡</button>
+      </div>
+    </header>
+
+    <!-- Room layout -->
+    <main class="room-wrapper">
+
+      <!-- LEFT PANEL -->
+      <section class="room-panel left-panel">
+
+        <div class="room-object" id="obj-bookshelf" tabindex="0" title="A dusty bookshelf">
+          <div class="obj-icon">📚</div>
+          <span class="obj-label">BOOKSHELF</span>
+          <div class="obj-glow"></div>
+        </div>
+
+        <div class="room-object" id="obj-cabinet" tabindex="0" title="Locked steel cabinet">
+          <div class="obj-icon">🗄️</div>
+          <span class="obj-label">CABINET</span>
+          <div class="obj-badge" id="cabinet-badge">🔒</div>
+          <div class="obj-glow"></div>
+        </div>
+
+      </section>
+
+      <!-- CENTER PANEL -->
+      <section class="room-center">
+        <div class="room-art">
+          <div class="ceiling-light" id="ceiling-light"></div>
+
+          <svg class="room-svg" viewBox="0 0 600 380" xmlns="http://www.w3.org/2000/svg">
+            <polygon points="0,380 600,380 480,220 120,220" fill="#0d0d12" stroke="#1e2030" stroke-width="1"/>
+            <rect x="120" y="0" width="360" height="220" fill="#0a0a0f" stroke="#1e2030" stroke-width="1"/>
+            <polygon points="0,0 120,0 120,220 0,380" fill="#080810" stroke="#1e2030" stroke-width="1"/>
+            <polygon points="600,0 480,0 480,220 600,380" fill="#080810" stroke="#1e2030" stroke-width="1"/>
+            <rect x="230" y="60" width="100" height="160" fill="#0c0c14" stroke="#2a2d45" stroke-width="2"/>
+            <circle cx="320" cy="145" r="5" fill="#3a4060"/>
+            <text x="280" y="50" fill="#2a2d45" font-size="11" font-family="monospace" text-anchor="middle">EXIT</text>
+            <polygon points="20,30 100,40 100,120 20,140" fill="#050510" stroke="#1a1d30" stroke-width="1.5"/>
+            <line x1="60" y1="40" x2="55" y2="135" stroke="#1a1d30" stroke-width="1"/>
+            <line x1="30" y1="37" x2="100" y2="80" stroke="#1a1d30" stroke-width="1"/>
+            <line x1="120" y1="2" x2="480" y2="2" stroke="#00ffe0" stroke-width="2" opacity="0.3"/>
+          </svg>
+
+          <div class="exit-door-overlay" id="obj-exit-door" tabindex="0" title="The sealed exit door">
+            <span class="exit-label">EXIT<br/>DOOR</span>
+          </div>
+        </div>
+
+        <!-- Inventory bar -->
+        <div class="inventory-bar">
+          <span class="inv-label">INVENTORY</span>
+          <div id="inventory-slots" class="inv-slots"></div>
+        </div>
+      </section>
+
+      <!-- RIGHT PANEL -->
+      <section class="room-panel right-panel">
+
+        <div class="room-object" id="obj-terminal" tabindex="0" title="An old computer terminal">
+          <div class="obj-icon">🖥️</div>
+          <span class="obj-label">TERMINAL</span>
+          <div class="obj-glow"></div>
+        </div>
+
+        <div class="room-object" id="obj-painting" tabindex="0" title="A strange abstract painting">
+          <div class="obj-icon">🖼️</div>
+          <span class="obj-label">PAINTING</span>
+          <div class="obj-badge" id="painting-badge">❓</div>
+          <div class="obj-glow"></div>
+        </div>
+
+        <div class="room-object" id="obj-safe" tabindex="0" title="A wall safe with a dial">
+          <div class="obj-icon">🔐</div>
+          <span class="obj-label">WALL SAFE</span>
+          <div class="obj-badge" id="safe-badge">🔒</div>
+          <div class="obj-glow"></div>
+        </div>
+
+      </section>
+
+    </main>
+
+    <!-- Status log -->
+    <div class="status-bar">
+      <span id="status-msg">Explore the room. Click objects to interact.</span>
+    </div>
+
+  </div>
+
+  <!-- WIN SCREEN -->
+  <div id="win-screen" class="screen end-screen win">
+    <div class="end-content">
+      <div class="end-icon">🚪</div>
+      <h2>ESCAPED</h2>
+      <p>You escaped with <span id="time-left"></span> remaining.</p>
+      <button class="btn-primary" onclick="restartGame()">REINITIALISE</button>
+    </div>
+  </div>
+
+  <!-- LOSE SCREEN -->
+  <div id="lose-screen" class="screen end-screen lose">
+    <div class="end-content">
+      <div class="end-icon">☠️</div>
+      <h2>LOCKDOWN</h2>
+      <p>The facility sealed permanently.<br/>You are now part of the experiment.</p>
+      <button class="btn-primary" onclick="restartGame()">TRY AGAIN</button>
+    </div>
+  </div>
+
+  <!--MODAL OVERLAY-->
+  <div id="modal-overlay" class="modal-overlay hidden">
+    <div id="modal-box" class="modal-box">
+      <button id="modal-close" class="modal-close" title="Close">✕</button>
+      <div id="modal-content"></div>
+    </div>
+  </div>
+
+  <!-- HINT POPUP -->
+  <div id="hint-popup" class="hint-popup hidden">
+    <span id="hint-text"></span>
+  </div>
+
+  <script src="script.js"></script>
+</body>
+</html>
